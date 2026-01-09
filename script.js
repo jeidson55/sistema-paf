@@ -58,7 +58,7 @@ function coletarDados() {
     return data;
 }
 
-// FUNÇÃO PARA GERAR O RELATÓRIO COM LOGOS PADRONIZADAS
+// FUNÇÃO PARA GERAR O RELATÓRIO COM LOGOS PADRONIZADAS NAS POSIÇÕES CORRETAS
 function gerarRelatorio() {
     const d = coletarDados();
     const situacao = d.radios.status_andamento ? "Em andamento" : (d.radios.status_concl ? "Concluído em " + d.inputs.data_concl : "N/A");
@@ -80,13 +80,10 @@ function gerarRelatorio() {
                 body { font-family: Arial, sans-serif; padding: 30px; font-size: 11px; line-height: 1.4; color: #333; }
                 .btn-azul-print { background: #1e3a8a; color: white; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; border-radius: 5px; margin-bottom: 20px; }
                 
-                /* Cabeçalho com Logos Padronizadas */
+                /* Cabeçalho Ajustado conforme solicitado */
                 .report-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #1e3a8a; padding-bottom: 15px; margin-bottom: 20px; }
-                
                 .logo-left, .logo-right { width: 120px; text-align: center; }
                 .logo-center { flex: 1; text-align: center; }
-
-                /* Tamanho padronizado para todas as logos */
                 .report-header img { height: 80px; width: auto; object-fit: contain; }
                 
                 .header-text h2 { font-size: 12px; margin: 5px 0 0 0; color: #1e3a8a; text-transform: uppercase; }
@@ -105,7 +102,7 @@ function gerarRelatorio() {
                 th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
                 th { background: #eee; font-size: 10px; text-transform: uppercase; }
                 
-                .full-box { border: 1px solid #ddd; padding: 12px; margin-top: 8px; min-height: 40px; white-space: pre-wrap; background: #fff; }
+                .full-box { border: 1px solid #ddd; padding: 12px; margin-top: 8px; min-height: 40px; white-space: pre-wrap; background: #fff; border-radius: 4px; }
                 
                 .assinaturas-container { text-align: center; margin-top: 60px; display: flex; flex-direction: column; align-items: center; gap: 45px; }
                 .linha-assinatura { width: 380px; border-top: 1px solid #000; padding-top: 6px; font-weight: bold; font-size: 10px; text-transform: uppercase; }
@@ -118,8 +115,8 @@ function gerarRelatorio() {
 
             <header class="report-header">
                 <div class="logo-left"><img src="brasao.png"></div>
+                
                 <div class="logo-center">
-                    <img src="logo_creas.png">
                     <div class="header-text">
                         <h2>Secretaria de Estado de Desenvolvimento Social - SEDESE</h2>
                         <h3>Subsecretaria de Assistência Social - SUBAS</h3>
@@ -127,7 +124,8 @@ function gerarRelatorio() {
                         <div class="badge">CREAS Regional Alto Jequitinhonha - Diamantina/MG</div>
                     </div>
                 </div>
-                <div class="logo-right"><img src="logo_minas.png"></div>
+                
+                <div class="logo-right"><img src="logo_creas.png"></div>
             </header>
 
             <h1>PLANO DE ACOMPANHAMENTO FAMILIAR - PAF</h1>
@@ -135,10 +133,10 @@ function gerarRelatorio() {
             <h2 class="section-title">I - IDENTIFICAÇÃO</h2>
             <div class="grid">
                 <div class="box"><span class="label">CREAS:</span>${d.inputs.nome_creas}</div>
-                <div class="box"><span class="label">Nº Identificador:</span>${d.inputs.id_creas}</div>
+                <div class="box"><span class="label">Nº Identificador:</span>${document.getElementById('id_creas').value}</div>
                 <div class="box"><span class="label">Responsável Familiar:</span>${d.inputs.resp_familiar}</div>
                 <div class="box"><span class="label">CPF:</span>${d.inputs.cpf}</div>
-                <div class="box"><span class="label">NIS:</span>${d.inputs.nis}</div>
+                <div class="box"><span class="label">NIS:</span>${d.inputs.nis || 'Não informado'}</div>
                 <div class="box"><span class="label">Nascimento:</span>${d.inputs.nasc_resp}</div>
                 <div class="box"><span class="label">Endereço:</span>${d.inputs.endereco}</div>
                 <div class="box"><span class="label">Telefone:</span>${d.inputs.telefone}</div>
@@ -217,24 +215,37 @@ function importarDados(input) {
 function aplicarDados(data) {
     if (!data) return;
     document.getElementById('membrosBody').innerHTML = '';
-    for (let id in data.inputs) { if (document.getElementById(id)) document.getElementById(id).value = data.inputs[id]; }
-    if (data.radios) { for (let id in data.radios) { if (document.getElementById(id)) document.getElementById(id).checked = data.radios[id]; } }
     
-    // Trava do ID após carregar backup
+    // Aplica inputs
+    for (let id in data.inputs) { 
+        if (document.getElementById(id)) document.getElementById(id).value = data.inputs[id]; 
+    }
+    
+    // Aplica radios
+    if (data.radios) { 
+        for (let id in data.radios) { 
+            if (document.getElementById(id)) document.getElementById(id).checked = data.radios[id]; 
+        } 
+    }
+    
+    // Garante trava do ID
     const idCampo = document.getElementById('id_creas');
     if(idCampo) {
         idCampo.value = "31216097899";
         idCampo.readOnly = true;
     }
 
+    // Carrega membros
     if (data.membros && data.membros.length > 0) {
         data.membros.forEach(m => addMembro(m.nome, m.renda, m.data, m.parentesco));
-    } else { addMembro(); }
+    } else { 
+        addMembro(); 
+    }
     calcularRenda();
 }
 
 window.onload = () => {
-    // Trava do ID no início
+    // Garante trava do ID no início
     const idCampo = document.getElementById('id_creas');
     if(idCampo) {
         idCampo.value = "31216097899";

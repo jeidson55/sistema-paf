@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema PAF - CREAS</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Ajuste específico para garantir visibilidade das logos no cabeçalho */
+        .logo-area img {
+            height: 80px; /* Tamanho considerável e visível */
+            width: auto;
+            object-fit: contain;
+        }
+        .inst-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #1e3a8a;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .inst-text {
+            flex: 1;
+            text-align: center;
+            padding: 0 20px;
+        }
+    </style>
 <link type="text/css" rel="stylesheet" href="css/style.css"/>
 </head>
 <body>
@@ -14,17 +35,18 @@
         <div class="logo-area">
             <img src="brasao.png" alt="Brasão Estado">
         </div>
+
         <div class="inst-text">
-            <div class="logo-creas-container">
-                <img src="logo_creas.png" alt="Logo CREAS Regional" style="max-height: 50px; margin-bottom: 5px;">
+            <h2 style="font-size: 16px; margin: 0; color: #1e3a8a;">Secretaria de Estado de Desenvolvimento Social - SEDESE</h2>
+            <h3 style="font-size: 14px; margin: 5px 0; font-weight: normal;">Subsecretaria de Assistência Social - SUBAS</h3>
+            <h4 style="font-size: 12px; margin: 0; color: #64748b;">Superintendência de Proteção Social Especial</h4>
+            <div class="creas-badge" style="background: #1e3a8a; color: white; padding: 5px 15px; border-radius: 15px; font-size: 11px; display: inline-block; margin-top: 10px; font-weight: bold;">
+                CREAS Regional Alto Jequitinhonha - Diamantina/MG
             </div>
-            <h2>Secretaria de Estado de Desenvolvimento Social - SEDESE</h2>
-            <h3>Subsecretaria de Assistência Social - SUBAS</h3>
-            <h4>Superintendência de Proteção Social Especial</h4>
-            <div class="creas-badge">CREAS Regional Alto Jequitinhonha - Diamantina/MG</div>
         </div>
+
         <div class="logo-area">
-            <img src="logo_minas.png" alt="Minas Gerais">
+            <img src="logo_creas.png" alt="Logo CREAS Regional">
         </div>
     </header>
 
@@ -42,7 +64,7 @@
             </div>
             <div class="input-group">
                 <label class="required-label">Nº Identificador</label>
-                <input type="text" id="id_creas" required>
+                <input type="text" id="id_creas" required readonly>
             </div>
         </div>
         <div class="grid-row">
@@ -160,25 +182,23 @@
         </div>
     </section>
 
-  <section class="form-section">
-    <div class="section-header-blue">III - Articulação e Compromissos</div>
-    
-    <div style="display: flex; gap: 20px; width: 100%;">
-        <div class="input-group" style="flex: 1;">
-            <label>9) Articulação de Rede</label>
-            <textarea id="obs_rede" style="width: 100%; min-height: 120px; box-sizing: border-box;"></textarea>
+    <section class="form-section">
+        <div class="section-header-blue">III - Articulação e Compromissos</div>
+        <div style="display: flex; gap: 20px; width: 100%;">
+            <div class="input-group" style="flex: 1;">
+                <label>9) Articulação de Rede</label>
+                <textarea id="obs_rede" style="width: 100%; min-height: 120px; box-sizing: border-box;"></textarea>
+            </div>
+            <div class="input-group" style="flex: 1;">
+                <label>10) Compromissos da Família</label>
+                <textarea id="comp_familia" style="width: 100%; min-height: 120px; box-sizing: border-box;"></textarea>
+            </div>
         </div>
-        <div class="input-group" style="flex: 1;">
-            <label>10) Compromissos da Família</label>
-            <textarea id="comp_familia" style="width: 100%; min-height: 120px; box-sizing: border-box;"></textarea>
+        <div class="input-group" style="margin-top: 15px;">
+            <label>11) Compromissos da Equipe</label>
+            <textarea id="obs_equipe" style="width: 100%; min-height: 60px; box-sizing: border-box;"></textarea>
         </div>
-    </div>
-
-    <div class="input-group" style="margin-top: 15px;">
-        <label>11) Compromissos da Equipe</label>
-        <textarea id="obs_equipe" style="width: 100%; min-height: 60px; box-sizing: border-box;"></textarea>
-    </div>
-</section>
+    </section>
 
     <section class="form-section">
         <div class="section-header-blue">IV - Acompanhamento e Evolução</div>
@@ -189,12 +209,12 @@
     </section>
 
     <div class="footer-actions no-print" style="display: flex; justify-content: center; gap: 15px; margin-top: 30px; padding: 20px; border-top: 1px solid #e2e8f0;">
-    <button type="button" class="btn-save" onclick="validarESalvar()" style="background: #1e3a8a; color:white; border:none; padding:12px 25px; border-radius:6px; cursor:pointer; font-weight:bold;">💾 Salvar Alterações</button>
-    <button type="button" class="btn-report" onclick="gerarRelatorio()" style="background: #f59e0b; color:white; border:none; padding:12px 25px; border-radius:6px; cursor:pointer; font-weight:bold;">🖨️ RELATÓRIO</button>
-    <button type="button" class="btn-export" onclick="exportarDados()" style="background: #64748b; color:white; border:none; padding:12px 25px; border-radius:6px; cursor:pointer; font-weight:bold;">📤 Exportar Backup</button>
-    <button type="button" class="btn-import" onclick="document.getElementById('fileInput').click()" style="background: #64748b; color:white; border:none; padding:12px 25px; border-radius:6px; cursor:pointer; font-weight:bold;">📥 Carregar Backup</button>
-    <input type="file" id="fileInput" style="display:none" onchange="importarDados(this)">
-</div>
+        <button type="button" class="btn-save" onclick="validarESalvar()" style="background: #1e3a8a; color:white; border:none; padding:12px 25px; border-radius:6px; cursor:pointer; font-weight:bold;">💾 Salvar Alterações</button>
+        <button type="button" class="btn-report" onclick="gerarRelatorio()" style="background: #f59e0b; color:white; border:none; padding:12px 25px; border-radius:6px; cursor:pointer; font-weight:bold;">📄 RELATÓRIO</button>
+        <button type="button" class="btn-export" onclick="exportarDados()" style="background: #64748b; color:white; border:none; padding:12px 25px; border-radius:6px; cursor:pointer; font-weight:bold;">📥 Exportar Backup</button>
+        <button type="button" class="btn-import" onclick="document.getElementById('fileInput').click()" style="background: #64748b; color:white; border:none; padding:12px 25px; border-radius:6px; cursor:pointer; font-weight:bold;">📤 Carregar Backup</button>
+        <input type="file" id="fileInput" style="display:none" onchange="importarDados(this)">
+    </div>
 </div>
 
 <script src="script.js"></script>
