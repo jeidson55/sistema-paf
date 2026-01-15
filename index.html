@@ -32,12 +32,12 @@
 <div class="container">
     <div style="background: #f1f5f9; padding: 20px; border-radius: 5px; margin-bottom: 25px; border: 1px solid #1e3a8a;" class="no-print">
         <label style="font-weight: bold; color: #1e3a8a; display: block; margin-bottom: 8px;">
-            🔍 PESQUISAR PAF (NOME OU CPF):
+            🔍 PESQUISAR PRONTUÁRIO (NOME OU CPF):
         </label>
         <input type="text" id="campo-pesquisa" list="lista-pacientes" oninput="verificarSelecao(this.value)" placeholder="Pesquisar por Nome ou CPF..." style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #cbd5e1;">
         <datalist id="lista-pacientes"></datalist>
         <small style="color: #64748b; margin-top: 5px; display: block;">
-            * O sistema busca automaticamente os usuários cadastrados.
+            * O sistema busca automaticamente entre os pacientes cadastrados na nuvem.
         </small>
     </div>
 
@@ -123,6 +123,16 @@
                 </div>
             </div>
         </div>
+        <div class="grid-row">
+            <div class="input-group span-2">
+                <label>Forma de Ingresso na Unidade</label>
+                <input type="text" id="forma_ingresso">
+            </div>
+            <div class="input-group">
+                <label>Contrarreferência / Desligado</label>
+                <input type="text" id="status_desligado">
+            </div>
+        </div>
     </section>
 
     <section class="form-section">
@@ -176,6 +186,10 @@
             <div class="input-group"><label>5) Responsável</label><textarea id="responsavel"></textarea></div>
             <div class="input-group"><label>6) Resultados Esperados</label><textarea id="resultados_esperados"></textarea></div>
         </div>
+        <div class="grid-row">
+            <div class="input-group"><label>7) Lista de Atividades</label><textarea id="atividades_lista"></textarea></div>
+            <div class="input-group"><label>8) Resultados Alcançados</label><textarea id="resultados_alcancados"></textarea></div>
+        </div>
     </section>
 
     <section class="form-section">
@@ -198,6 +212,9 @@
 
     <section class="form-section">
         <div class="section-header-blue">IV - Acompanhamento e Evolução</div>
+        <div class="input-group"><label>Objetivo do Acompanhamento Familiar</label><textarea id="obj_acompanhamento"></textarea></div>
+        <div class="input-group"><label>Acordos / Orientações Realizadas</label><textarea id="acordos_familia"></textarea></div>
+        <div class="input-group"><label>Encaminhamentos para a Rede de Proteção</label><textarea id="encaminhamentos_rede"></textarea></div>
         <div class="input-group"><label>Evolução Familiar</label><textarea id="evolucao_final" style="min-height: 120px;"></textarea></div>
     </section>
 

@@ -105,7 +105,7 @@ function aplicarDados(data) {
 }
 
 // ==========================================
-// PERSISTÊNCIA E BACKUP (AJUSTADOS)
+// PERSISTÊNCIA E BACKUP
 // ==========================================
 async function validarESalvar() {
     const dados = coletarDados();
@@ -117,18 +117,8 @@ async function validarESalvar() {
 
     try {
         await db.collection(CHAVE_COLECAO).doc(cpf).set(dados);
-        
-        // Backup automático com CPF e Nome
-        const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a');
-        const nomeArquivo = `PAF_${cpf}_${nomeLimpo}.json`;
-        a.href = URL.createObjectURL(blob);
-        a.download = nomeArquivo;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-
-        alert("✅ Salvo na Nuvem e Backup [" + nomeArquivo + "] gerado!");
+        exportarDados(); // Gera o backup JSON automaticamente
+        alert("✅ Salvo na Nuvem e Backup gerado!");
         listarPacientes(); 
     } catch (error) {
         alert("❌ Erro ao salvar na nuvem.");
@@ -145,34 +135,11 @@ function exportarDados() {
     const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    
-    a.style.display = 'none';
     a.href = url;
     a.download = `PAF_${cpf}_${nomeLimpo}.json`;
-    
     document.body.appendChild(a);
     a.click();
-    
-    setTimeout(() => {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    }, 100);
-}
-
-function importarDados(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const dados = JSON.parse(e.target.result);
-            aplicarDados(dados);
-            alert("✅ Backup carregado com sucesso!");
-        } catch (err) {
-            alert("❌ Erro ao ler arquivo JSON.");
-        }
-    };
-    reader.readAsText(file);
+    document.body.removeChild(a);
 }
 
 // ==========================================
@@ -206,7 +173,7 @@ async function carregarPaciente(cpf) {
 }
 
 // ==========================================
-// GERAR RELATÓRIO (4 ASSINATURAS RESTAURADAS)
+// GERAR RELATÓRIO ATUALIZADO
 // ==========================================
 function gerarRelatorio() {
     const d = coletarDados();
@@ -227,39 +194,53 @@ function gerarRelatorio() {
         <head>
             <title>Relatório PAF - ${d.inputs.resp_familiar}</title>
             <style>
-                body { font-family: Arial, sans-serif; padding: 30px; font-size: 10px; line-height: 1.3; color: #333; }
-                .report-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; }
-                .logo-left, .logo-right { width: 100px; text-align: center; }
-                .logo-center { flex: 1; text-align: center; }
-                .report-header img { height: 65px; width: auto; object-fit: contain; }
+                body { font-family: Arial, sans-serif; padding: 25px; font-size: 10px; line-height: 1.3; color: #333; }
+                
+                .report-header { 
+                    display: flex; 
+                    align-items: center; 
+                    justify-content: space-between; 
+                    border-bottom: 2px solid #1e3a8a; 
+                    padding-bottom: 10px; 
+                    margin-bottom: 15px;
+                }
+                .logo-container { width: 100px; text-align: center; }
+                .logo-container img { max-height: 60px; max-width: 100%; object-fit: contain; }
+                
+                .header-text { text-align: center; flex: 1; }
                 .header-text h2 { font-size: 11px; margin: 0; color: #1e3a8a; text-transform: uppercase; }
-                .badge { background: #1e3a8a; color: white; padding: 3px 10px; border-radius: 10px; font-size: 9px; display: inline-block; margin-top: 5px; }
-                h1 { text-align: center; color: #1e3a8a; margin: 10px 0; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #eee; }
-                h2.section-title { background: #f1f5f9; color: #1e3a8a; padding: 5px; font-size: 10px; border-left: 5px solid #1e3a8a; margin-top: 15px; text-transform: uppercase; font-weight: bold; }
-                .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-                .box { border: 1px solid #ddd; padding: 6px; border-radius: 4px; background: #fafafa; }
-                .label { font-weight: bold; font-size: 8px; color: #555; display: block; text-transform: uppercase; margin-bottom: 2px; }
-                table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+                
+                h1 { text-align: center; color: #1e3a8a; font-size: 14px; margin: 10px 0; border-bottom: 1px solid #eee; text-transform: uppercase; }
+                h2.section-title { background: #f1f5f9; color: #1e3a8a; padding: 5px; font-size: 10px; border-left: 5px solid #1e3a8a; margin-top: 12px; text-transform: uppercase; font-weight: bold; }
+                
+                .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+                .box { border: 1px solid #ddd; padding: 6px; border-radius: 4px; background: #fff; }
+                .label { font-weight: bold; font-size: 8px; color: #1e3a8a; display: block; text-transform: uppercase; margin-bottom: 2px; }
+                
+                /* PADRONIZAÇÃO DA TABELA (COMPOSIÇÃO FAMILIAR) */
+                table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 10px; }
                 th, td { border: 1px solid #ccc; padding: 5px; text-align: left; }
-                th { background: #eee; font-size: 9px; }
-                .full-box { border: 1px solid #ddd; padding: 10px; margin-top: 5px; min-height: 30px; white-space: pre-wrap; background: #fff; border-radius: 4px; }
-                .assinaturas-container { text-align: center; margin-top: 40px; display: flex; flex-direction: column; align-items: center; gap: 35px; }
-                .linha-assinatura { width: 350px; border-top: 1px solid #000; padding-top: 4px; font-weight: bold; font-size: 9px; text-transform: uppercase; }
+                th { background: #f8fafc; font-size: 9px; color: #1e3a8a; text-transform: uppercase; }
+                .renda-total-texto { text-align: right; font-weight: bold; margin: 5px 0; font-size: 10px; color: #333; }
+                
+                .full-row-box { border: 1px solid #ddd; padding: 6px; margin-top: 6px; border-radius: 4px; min-height: 25px; }
+                
+                .assinaturas { margin-top: 35px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
+                .linha { width: 320px; border-top: 1px solid #000; text-align: center; padding-top: 3px; font-weight: bold; text-transform: uppercase; font-size: 9px; }
+                
                 @media print { .no-print { display: none; } body { padding: 0; } }
             </style>
         </head>
         <body>
-            <button class="no-print" onclick="window.print()" style="padding:8px; margin-bottom:15px; background:#1e3a8a; color:white; border:none; border-radius:4px; cursor:pointer;">🖨️ IMPRIMIR</button>
-
+            <button class="no-print" onclick="window.print()" style="padding:8px 15px; background:#1e3a8a; color:white; border:none; border-radius:4px; cursor:pointer; margin-bottom:15px; font-weight:bold;">🖨️ IMPRIMIR</button>
+            
             <header class="report-header">
-                <div class="logo-left"><img src="brasao.png"></div>
-                <div class="logo-center">
-                    <div class="header-text">
-                        <h2>Secretaria de Estado de Desenvolvimento Social - SEDESE</h2>
-                        <div class="badge">CREAS Regional Alto Jequitinhonha - Diamantina/MG</div>
-                    </div>
+                <div class="logo-container"><img src="brasao.png"></div>
+                <div class="header-text">
+                    <h2>SECRETARIA DE ESTADO DE DESENVOLVIMENTO SOCIAL - SEDESE</h2>
+                    <p style="margin:2px 0; font-size:10px; font-weight:bold;">CREAS Regional Alto Jequitinhonha - Diamantina/MG</p>
                 </div>
-                <div class="logo-right"><img src="logo_creas.png"></div>
+                <div class="logo-container"><img src="logo_creas.png"></div>
             </header>
 
             <h1>PLANO DE ACOMPANHAMENTO FAMILIAR - PAF</h1>
@@ -268,51 +249,58 @@ function gerarRelatorio() {
             <div class="grid">
                 <div class="box"><span class="label">Responsável Familiar:</span>${d.inputs.resp_familiar || '---'}</div>
                 <div class="box"><span class="label">CPF:</span>${d.inputs.cpf || '---'}</div>
-                <div class="box"><span class="label">NIS:</span>${d.inputs.nis || 'Não informado'}</div>
+                <div class="box"><span class="label">NIS:</span>${d.inputs.nis || '---'}</div>
                 <div class="box"><span class="label">Nascimento:</span>${d.inputs.nasc_resp || '---'}</div>
-                <div class="box"><span class="label">Endereço:</span>${d.inputs.endereco || '---'}</div>
-                <div class="box"><span class="label">Telefone:</span>${d.inputs.telefone || '---'}</div>
-                <div class="box"><span class="label">Início PAF:</span>${d.inputs.data_paf || '---'}</div>
-                <div class="box"><span class="label">Situação:</span>${situacao}</div>
+                <div class="box"><span class="label">Forma de Ingresso:</span>${d.inputs.forma_ingresso || '---'}</div>
+                <div class="box"><span class="label">Situação do PAF:</span>${situacao}</div>
             </div>
 
             <h2 class="section-title">II - COMPOSIÇÃO FAMILIAR E RENDA</h2>
             <table>
-                <thead><tr><th>Nome</th><th>Renda</th><th>Nascimento</th><th>Parentesco</th></tr></thead>
+                <thead><tr><th>Nome Completo</th><th>Renda (R$)</th><th>Nascimento</th><th>Parentesco</th></tr></thead>
                 <tbody>${membrosHtml}</tbody>
             </table>
-            <div class="box" style="margin-top:5px; text-align:right;"><strong>Renda Familiar Total: ${document.getElementById('renda_total').value}</strong></div>
-            <div class="full-box"><strong>OBSERVAÇÕES BPC/PBF:</strong><br>${d.inputs.obs_beneficios || 'Nenhuma'}</div>
+            <div class="renda-total-texto">Renda Total: ${document.getElementById('renda_total').value}</div>
+            
+            <div class="full-row-box">
+                <span class="label">Família beneficiária do BPC ou PBF (Observações):</span>
+                <div style="font-size: 9px; margin-top: 2px;">${d.inputs.obs_beneficios || 'Nenhuma observação.'}</div>
+            </div>
 
-            <h2 class="section-title">III - DEMANDAS E VIOLAÇÕES</h2>
-            <div class="full-box">${d.inputs.texto_demandas || '---'}</div>
-
-            <h2 class="section-title">IV - DIAGNÓSTICO E INTERVENÇÃO</h2>
+            <h2 class="section-title">III - PLANEJAMENTO E INTERVENÇÃO</h2>
             <div class="grid">
                 <div class="box"><span class="label">1) Potencialidades:</span>${d.inputs.potencialidades || '---'}</div>
                 <div class="box"><span class="label">2) Vulnerabilidades:</span>${d.inputs.vulnerabilidades || '---'}</div>
                 <div class="box"><span class="label">3) Prioridades:</span>${d.inputs.prioridades || '---'}</div>
-                <div class="box"><span class="label">4) Proposta:</span>${d.inputs.proposta || '---'}</div>
+                <div class="box"><span class="label">4) Proposta de Intervenção:</span>${d.inputs.proposta || '---'}</div>
                 <div class="box"><span class="label">5) Responsável:</span>${d.inputs.responsavel || '---'}</div>
                 <div class="box"><span class="label">6) Resultados Esperados:</span>${d.inputs.resultados_esperados || '---'}</div>
+                <div class="box"><span class="label">7) Lista de Atividades:</span>${d.inputs.atividades_lista || '---'}</div>
+                <div class="box"><span class="label">8) Resultados Alcançados:</span>${d.inputs.resultados_alcancados || '---'}</div>
             </div>
 
-            <h2 class="section-title">V - ARTICULAÇÃO E COMPROMISSOS</h2>
+            <h2 class="section-title">IV - ARTICULAÇÃO E COMPROMISSOS</h2>
             <div class="grid">
-                <div class="box"><span class="label">7) Articulação Rede:</span>${d.inputs.obs_rede || '---'}</div>
-                <div class="box"><span class="label">8) Compromissos Família:</span>${d.inputs.comp_familia || '---'}</div>
+                <div class="box"><span class="label">9) Articulação de Rede:</span>${d.inputs.obs_rede || '---'}</div>
+                <div class="box"><span class="label">10) Compromissos da Família:</span>${d.inputs.comp_familia || '---'}</div>
             </div>
-            <div class="box" style="margin-top:5px;"><span class="label">9) Compromissos Equipe:</span>${d.inputs.obs_equipe || '---'}</div>
+            <div class="full-row-box" style="margin-top: 6px;">
+                <span class="label">11) Compromissos da Equipe:</span>
+                <div style="font-size: 9px; margin-top: 2px;">${d.inputs.obs_equipe || '---'}</div>
+            </div>
 
-            <h2 class="section-title">VI - ACOMPANHAMENTO E EVOLUÇÃO</h2>
-            <div class="full-box"><strong>EVOLUÇÃO:</strong><br>${d.inputs.evolucao_final || '---'}</div>
+            <h2 class="section-title">V - EVOLUÇÃO E ENCAMINHAMENTOS</h2>
+            <div class="full-row-box">
+                <span class="label">Evolução Familiar Final:</span>
+                <div style="font-size: 9px; margin-top: 2px; white-space: pre-wrap;">${d.inputs.evolucao_final || '---'}</div>
+            </div>
 
-            <div class="assinaturas-container">
+            <div class="assinaturas">
                 <p>Diamantina/MG, ${dataHoje}.</p>
-                <div class="linha-assinatura">Assinatura do Técnico Responsável</div>
-                <div class="linha-assinatura">Assinatura do Técnico Responsável</div>
-                <div class="linha-assinatura">Assinatura do Técnico Responsável</div>
-                <div class="linha-assinatura">Assinatura do Responsável Familiar</div>
+                <div class="linha">Assinatura do Técnico Responsável</div>
+                <div class="linha">Assinatura do Técnico Responsável</div>
+                <div class="linha">Assinatura do Técnico Responsável</div>
+                <div class="linha">Assinatura do Responsável Familiar</div>
             </div>
         </body>
         </html>
@@ -320,11 +308,8 @@ function gerarRelatorio() {
     win.document.close();
 }
 
-// ==========================================
-// INICIALIZAÇÃO
-// ==========================================
 window.onload = () => {
     const idC = document.getElementById('id_creas');
-    if(idC) { idC.value = "31216097899"; idC.readOnly = true; }
+    if(idC) { idC.value = "31216097899"; }
     listarPacientes();
 };
