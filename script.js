@@ -291,7 +291,7 @@ function gerarRelatorio() {
 
             <h2 class="section-title">V - EVOLUÇÃO E ENCAMINHAMENTOS</h2>
             <div class="full-row-box">
-                <span class="label">Evolução Familiar Final:</span>
+                <span class="label">Evolução:</span>
                 <div style="font-size: 9px; margin-top: 2px; white-space: pre-wrap;">${d.inputs.evolucao_final || '---'}</div>
             </div>
 
